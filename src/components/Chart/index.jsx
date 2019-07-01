@@ -1,65 +1,48 @@
-import React, { memo } from 'react'
-import PropTypes from 'prop-types'
-import { Legend, ResponsiveContainer, AreaChart, XAxis, YAxis, Tooltip, CartesianGrid, Area } from 'recharts'
+import React, { PureComponent } from 'react'
+import Highcharts from 'highcharts'
 
+import CONFIG, {
+  BUFFERING_SERIES, NET_SPEED_SERIES, VIDEO_RATE_SERIES, BUFFERED_TIME_SERIES
+} from './config'
 import styles from './styles'
 
-const formatYAxis = data => data + ' kb'
-const formatTooltipValue = value => `${value}kb/s`
+class Chart extends PureComponent {
+  highchartsContainerRef = React.createRef()
+  highchartsInstance = null
 
-const Chart = props => {
-  const { data } = props
+  bufferingSeries = null
+  netSpeedSeries = null
+  videoRateSeries = null
+  bufferedTimeSeries = null
 
-  return (
-    <div className="chart">
-      <ResponsiveContainer width='100%' aspect={16 / 9}>
-        <AreaChart
-          data={data}
-          margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
-        >
-          <defs>
-            <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-              <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
-            </linearGradient>
-            <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-              <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
-            </linearGradient>
-          </defs>
-          <XAxis dataKey="time" tickSize={4}/>
-          <YAxis tickFormatter={formatYAxis}/>
-          <CartesianGrid strokeDasharray="3 3" />
-          <Tooltip />
-          <Legend verticalAlign="top" height={36}/>
-          <Area
-            name="Video rate"
-            type="monotone"
-            dataKey="videoRate"
-            stroke="#8884d8"
-            fillOpacity={1}
-            fill="url(#colorUv)"
-            formatter={formatTooltipValue}
-          />
-          <Area
-            name="Net speed"
-            formatter={formatTooltipValue}
-            type="monotone"
-            dataKey="netSpeed"
-            stroke="#82ca9d"
-            fillOpacity={1}
-            fill="url(#colorPv)"
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+  componentDidMount() {
+    this.highchartsInstance = Highcharts.chart(this.highchartsContainerRef.current, CONFIG)
 
-      <style jsx>{styles}</style>
-    </div>
-  )
+    this.bufferingSeries = this.highchartsInstance.get(BUFFERING_SERIES)
+    this.netSpeedSeries = this.highchartsInstance.get(NET_SPEED_SERIES)
+    this.videoRateSeries = this.highchartsInstance.get(VIDEO_RATE_SERIES)
+    this.bufferedTimeSeries = this.highchartsInstance.get(BUFFERED_TIME_SERIES)
+  }
+
+  update = ({ bufferedTimeSeries, bufferingSeries, netSpeedSeries, videoRateSeries }) => {
+
+    this.bufferingSeries.setData(bufferingSeries, false)
+    this.netSpeedSeries.setData(netSpeedSeries, false)
+    this.videoRateSeries.setData(videoRateSeries, false)
+    this.bufferedTimeSeries.setData(bufferedTimeSeries, false)
+  
+    this.highchartsInstance.redraw();
+  }
+
+  render() {
+    return (
+      <div className="chart">
+        <div ref={this.highchartsContainerRef} />
+
+        <style jsx>{styles}</style>
+      </div>
+    )
+  }
 }
 
-Chart.propTypes = {
-  data: PropTypes.arrayOf(PropTypes.object).isRequired
-}
-
-export default memo(Chart)
+export default Chart

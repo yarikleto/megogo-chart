@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import shaka from 'shaka-player'
 
 import { SECOND } from 'constants/common'
-import { secondsToValidTime } from 'helpers/common'
 
 import styles from './styles'
 
@@ -19,7 +18,6 @@ class ShakaPlayer extends PureComponent {
   sendingInfoIntervalId = null
   playerRef = createRef()
   playerInstance = null
-  currentSecond = 0
 
   state = {
     playing: false,
@@ -87,15 +85,22 @@ class ShakaPlayer extends PureComponent {
   }
 
   handleSendingInfoInterval = () => {
-    this.currentSecond += 1
-
-    const buffering = this.state.buffering
+    const { currentTime, buffered } = this.playerRef.current
     const stats = this.playerInstance.getStats()
+
+    const buffering = Number(this.state.buffering)
     const videoRate = Math.round(stats.streamBandwidth / 1000)
     const netSpeed = Math.round(stats.estimatedBandwidth / 1000)
-    const time = secondsToValidTime(this.currentSecond)
+    const bufferedTime = buffered.length ? Math.round(buffered.end(0) - currentTime) : 0
+    const tickTime = Date.now()
 
-    this.props.onTickUpdate({ videoRate, netSpeed, buffering, time })
+    this.props.onTickUpdate({
+      videoRate,
+      netSpeed,
+      buffering,
+      bufferedTime,
+      tickTime
+    })
   }
 
   stopSendingInfoInterval = () => {
