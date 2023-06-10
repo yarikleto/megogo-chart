@@ -5,7 +5,7 @@
 npm i
 npm start # localhost:9000
 ```
-- [x] сопоставлять изменения текущей ширины канала W (Кбит/сек, вычисленная плеером) с изменением качества Q (Кбит/сек) отображаемого видео
-- [x] сопоставлять W c текущим размером буфера плеера B (сек)
-- [x] сопоставлять B с Q
-- [x] сопоставлять все перечисленные показатели (W, Q, B) с событиями входа в режим буферизации (закачивание в буфер без одновременного воспроизведения) и выходом из него
+- [x] Match changes in the current channel width W (in Kbps, calculated by the player) with changes in the displayed video quality Q (in Kbps).
+- [x] Match W with the current buffer size of the player B (in seconds).
+- [x] Match B with Q.
+- [x] Match all the listed metrics (W, Q, B) with buffering mode events (buffering, downloading content into the buffer without simultaneous playback) and exiting the buffering mode.
